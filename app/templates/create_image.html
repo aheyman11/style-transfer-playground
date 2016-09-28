@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+Style image: <br>
+
+{% if style_im != None %}
+<img src="/uploads/{{style_im}}" width=50%> <br>
+{% else %}
+No image uploaded. <br>
+{% endif %}
+
+Generated image: <br>
+
+{% endblock %}

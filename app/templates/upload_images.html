@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Create an image</h1>
+  <form action="" method="post" name="upload_images" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      <table>
+        <tr>
+          <td>Upload your style image (will be compressed to 224 x 224):</td>
+          <td>
+            {{ form.style_im }}
+            {% for error in form.style_im.errors %}
+            <br><span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+          </td>
+        </tr>
+        <tr>
+          <td>Number of iterations:</td>
+          <td>
+            {{ form.num_iter }}
+            {% for error in form.num_iter.errors %}
+            <br><span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+          </td>
+        </tr>
+        <tr> 
+          <td><input type="submit" value="Create image"></td>
+        </tr>
+      </table>
+  </form>
+{% endblock %}
