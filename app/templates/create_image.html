@@ -1,15 +1,20 @@
-{% extends "base.html" %}
-
-{% block content %}
-
 Style image: <br>
 
 {% if style_im != None %}
-<img src="uploads/{{style_im}}" width=50%> <br>
+<img src="http://localhost:8000/uploads/{{style_im}}" width=50%> <br>
 {% else %}
 No image uploaded. <br>
 {% endif %}
 
-<!-- Generated image: <br>
-<img src="/new_image.jpg" width=50%> <br> -->
-{% endblock %}
+Generated image: <br>
+<img id="my_image">
+<div id="iter_counter">
+	Number of iterations: 0
+</div>
+
+{% for im_name in data: %}
+<script>
+	document.getElementById("my_image").src = 'http://localhost:8000/out/{{ im_name }}';
+	document.getElementById("iter_counter").innerHTML = 'Number of iterations: {{ im_name.split('.')[0] }}'
+</script>
+{% endfor %}
