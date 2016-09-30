@@ -7,14 +7,11 @@ from .models import User
 import numpy as np
 import scipy.misc
 from PIL import Image
-import time
-from io import BytesIO
-import base64
 
 import make_image
 
 from oauth import OAuthSignIn
-from flask.ext.login import login_user, current_user, login_required
+from flask.ext.login import login_user, current_user, login_required, logout_user
 
 @lm.user_loader
 def load_user(id):
@@ -27,7 +24,11 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
-	return render_template('index.html')
+	if g.user.is_authenticated:
+		user = g.user
+	else:
+		user = None
+	return render_template('index.html', user=user)
 
 @app.route('/upload_images', methods=('GET', 'POST'))
 @login_required
@@ -42,10 +43,12 @@ def upload_images():
 	return render_template('upload_images.html', form=form)
 
 @app.route('/uploads/<filename>')
+@login_required
 def send_image(filename):
 	return send_from_directory('../uploads/', filename)
 
 @app.route('/out/<filename>')
+@login_required
 def send_out_image(filename):
 	print("sending out_image " + filename)
 	return send_from_directory('../out/', filename)
@@ -57,6 +60,7 @@ def stream_template(template_name, **context):
 	return rv
 
 @app.route('/create_image')
+@login_required
 def create_image():
 	if 'style_im' in session:
 		style_im = session['style_im']
@@ -91,5 +95,10 @@ def oauth_callback(provider):
         db.session.commit()
     login_user(user, True)
     return redirect(url_for('index'))
+
+@app.route('/logout')
+def logout():
+	logout_user()
+	return redirect(url_for('index'))
 
 app.secret_key = '\xbd\x90\xf9\x1e\xd4f/\xde\xef\xc2\x9b\x03\x9a/\x80\x15\xf6\x95\x0c\xf6\xf4\xb0\x10\x0e'
