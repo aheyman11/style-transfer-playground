@@ -50,7 +50,7 @@ class FacebookSignIn(OAuthSignIn):
 
     def callback(self):
         if 'code' not in request.args:
-            return None, None, None
+            return None, None
         oauth_session = self.service.get_auth_session(
             data={'code': request.args['code'],
                   'grant_type': 'authorization_code',
@@ -61,3 +61,36 @@ class FacebookSignIn(OAuthSignIn):
             'facebook$' + me['id'],
             me.get('first_name'),  # use first name as user nickname
         )
+
+class GithubSignIn(OAuthSignIn):
+    def __init__(self):
+        super(GithubSignIn, self).__init__('github')
+        self.service = OAuth2Service(
+            name='github',
+            client_id=self.consumer_id,
+            client_secret=self.consumer_secret,
+            authorize_url='https://github.com/login/oauth/authorize',           
+            access_token_url='https://github.com/login/oauth/access_token',
+            base_url='https://api.github.com'
+        )
+
+    def authorize(self):
+        return redirect(self.service.get_authorize_url(
+            scope='', # no scope defaults to public profile
+            response_type='code',
+            redirect_uri=self.get_callback_url())
+        )
+
+    def callback(self):
+        if 'code' not in request.args:
+            return None, None
+        oauth_session = self.service.get_auth_session(
+            data={'code': request.args['code'],
+                  'redirect_uri': self.get_callback_url()}
+        )
+        me = oauth_session.get('user').json()
+        return (
+            'github$' + str(me['id']), # github stores id as int, not string
+            me.get('name'),  # use name as user nickname
+        )
+

@@ -11,5 +11,9 @@ OAUTH_CREDENTIALS = {
 	'facebook': {
 		'id': '145906095867130',
 		'secret': 'b51a44d60219221cfefa614812f9ec59'
+	},
+	'github': {
+		'id': 'c1f6cbbef02ca8cd3d47',
+		'secret': 'd3ea82b1007072f37d6d027ad6a772fd9af03e57'
 	}
 }
