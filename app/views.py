@@ -19,7 +19,7 @@ def load_user(id):
 
 @app.before_request
 def before_request():
-    g.user = current_user
+	g.user = current_user
 
 @app.route('/')
 @app.route('/index')
@@ -74,27 +74,30 @@ def create_image():
 
 @app.route('/authorize/<provider>')
 def oauth_authorize(provider):
-    if not current_user.is_anonymous:
-        return redirect(url_for('index'))
-    oauth = OAuthSignIn.get_provider(provider)
-    return oauth.authorize()
+	if not current_user.is_anonymous:
+		return redirect(url_for('index'))
+	oauth = OAuthSignIn.get_provider(provider)
+	return oauth.authorize()
 
 @app.route('/callback/<provider>')
 def oauth_callback(provider):
-    if not current_user.is_anonymous:
-        return redirect(url_for('index'))
-    oauth = OAuthSignIn.get_provider(provider)
-    social_id, username = oauth.callback()
-    if social_id is None:
-        flash('Authentication failed.')
-        return redirect(url_for('index'))
-    user = User.query.filter_by(social_id=social_id).first()
-    if not user:
-        user = User(social_id=social_id, nickname=username)
-        db.session.add(user)
-        db.session.commit()
-    login_user(user, True)
-    return redirect(url_for('index'))
+	if not current_user.is_anonymous:
+		return redirect(url_for('index'))
+	oauth = OAuthSignIn.get_provider(provider)
+	social_id, username = oauth.callback()
+	if social_id is None:
+		flash('Authentication failed.')
+		return redirect(url_for('index'))
+	user = User.query.filter_by(social_id=social_id).first()
+	if not user:
+		user = User(social_id=social_id, nickname=username)
+		db.session.add(user)
+	else:
+		# update user nickname in case it's changed
+		user.nickname = username
+	db.session.commit()
+	login_user(user, True)
+	return redirect(url_for('index'))
 
 @app.route('/logout')
 def logout():
