@@ -14,7 +14,9 @@ Generated image: <br>
 
 {% for im_name in data: %}
 <script>
-	document.getElementById("my_image").src = 'http://localhost:8000/out/{{ im_name }}';
+	// get last part of directory where images are being served
+	var dir = '{{config['INTERMEDIATE_IM_DIR']}}'.match(/([^\/]*)\/*$/)[1]
+	document.getElementById("my_image").src = 'http://localhost:8000/' + dir + '/{{ im_name }}';
 	document.getElementById("iter_counter").innerHTML = 'Number of iterations: {{ im_name.split('.')[0] }}'
 </script>
 {% endfor %}

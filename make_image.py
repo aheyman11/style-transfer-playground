@@ -9,8 +9,9 @@ import tensorflow as tf
 import numpy as np
 
 import scipy.io
-# Config the matlotlib backend as plotting inline in IPython
-# get_ipython().magic(u'matplotlib inline')
+
+from app import app
+from flask import current_app
 
 # We will use the pretrained 19-layer VGG model
 def run(image_file, num_iterations):
@@ -156,5 +157,6 @@ def run(image_file, num_iterations):
             if it%1 == 0:
                 # dump every 100 iteration.
                 mixed_image = sess.run(model['input_image'])
-                write_image(os.path.join('./out', str(it) + '.png'), mixed_image)
+                with app.app_context():
+                    write_image(os.path.join(current_app.config['INTERMEDIATE_IM_DIR'], str(it) + '.png'), mixed_image)
                 yield(str(it) + '.png')

@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired, NumberRange
 class CreateImageForm(Form):
 	style_im = FileField('Your style image', validators=[
 		FileRequired(),
-		FileAllowed(['jpg', 'png'], 'Images only!')
+		FileAllowed(['jpg', 'png'], 'Images only (jpg or png)!')
 	])
 	num_iter = IntegerField('num_iter', validators=[
 		DataRequired('This must be an integer'),

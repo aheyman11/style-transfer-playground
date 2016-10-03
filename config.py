@@ -17,3 +17,6 @@ OAUTH_CREDENTIALS = {
 		'secret': 'd3ea82b1007072f37d6d027ad6a772fd9af03e57'
 	}
 }
+
+INTERMEDIATE_IM_DIR = os.path.join(basedir, 'tmp')
+UPLOAD_DIR = os.path.join(basedir, 'uploads')

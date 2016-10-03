@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 from app import app, db, lm
 from .forms import CreateImageForm
 from .models import User
+import os
 
 import numpy as np
 import scipy.misc
@@ -36,22 +37,11 @@ def upload_images():
 	form = CreateImageForm()
 	if form.validate_on_submit():
 		filename = secure_filename(form.style_im.data.filename)
-		form.style_im.data.save('uploads/' + filename)
+		form.style_im.data.save(os.path.join(app.config['UPLOAD_DIR'], filename))
 		session['style_im'] = filename
 		session['num_iters'] = form.num_iter.data
 		return redirect(url_for('create_image'))
 	return render_template('upload_images.html', form=form)
-
-@app.route('/uploads/<filename>')
-@login_required
-def send_image(filename):
-	return send_from_directory('../uploads/', filename)
-
-@app.route('/out/<filename>')
-@login_required
-def send_out_image(filename):
-	print("sending out_image " + filename)
-	return send_from_directory('../out/', filename)
 
 def stream_template(template_name, **context):
 	app.update_template_context(context)
@@ -70,7 +60,13 @@ def create_image():
 		num_iters = 0
 	session.pop('style_im', None)
 	session.pop('num_iters', None)
-	return Response(stream_template('create_image.html', style_im=style_im, data=make_image.run('./uploads/' + style_im, num_iters)))
+	im_path = os.path.join(app.config['UPLOAD_DIR'], style_im)
+	return Response(
+		stream_template('create_image.html', 
+			style_im=style_im, 
+			data=make_image.run(im_path, num_iters)
+			)
+		)
 
 @app.route('/authorize/<provider>')
 def oauth_authorize(provider):
