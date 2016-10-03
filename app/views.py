@@ -54,18 +54,17 @@ def create_image():
 	if 'style_im' in session:
 		style_im = session['style_im']
 		num_iters = session['num_iters']
-	else:
-		style_im = None
-		num_iters = 0
-	session.pop('style_im', None)
-	session.pop('num_iters', None)
-	im_path = os.path.join(app.config['UPLOAD_DIR'], style_im)
-	return Response(
-		stream_template('create_image.html', 
-			style_im=style_im, 
-			data=make_image(im_path, num_iters)
+		session.pop('style_im', None)
+		session.pop('num_iters', None)
+		im_path = os.path.join(app.config['UPLOAD_DIR'], style_im)
+		return Response(
+			stream_template('create_image.html', 
+				style_im=style_im, 
+				data=make_image(im_path, num_iters)
+				)
 			)
-		)
+	else:
+		return render_template('create_image.html', style_im=None, data=None)
 
 @app.route('/authorize/<provider>')
 def oauth_authorize(provider):

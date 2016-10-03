@@ -20,13 +20,10 @@ function save_image(img_html_object, result_message) {
 }
 </script>
 
+{% if style_im != None %}
 Style image: <br>
 
-{% if style_im != None %}
 <img src="http://localhost:8000/uploads/{{style_im}}" width="224px" heigh="224px"> <br>
-{% else %}
-No image uploaded. <br>
-{% endif %}
 
 Generated image: <br>
 <img id="my_image">
@@ -47,3 +44,6 @@ Generated image: <br>
     <a href="javascript:save_image('#my_image', '#save_result');">Save Image</a>
 </span>
 <span id="save_result"> </span>
+{% else %}
+No image uploaded. <br>
+{% endif %}
