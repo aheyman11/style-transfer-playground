@@ -15,6 +15,9 @@ from flask import current_app
 
 # We will use the pretrained 19-layer VGG model
 def make_image(image_file, num_iterations):
+    with app.app_context():
+        TMP_DIR = current_app.config['INTERMEDIATE_IM_DIR']
+
     VGG_MODEL = 'imagenet-vgg-verydeep-19.mat'
 
     vgg = scipy.io.loadmat(VGG_MODEL)
@@ -157,6 +160,9 @@ def make_image(image_file, num_iterations):
             if it%1 == 0:
                 # dump every 100 iteration.
                 mixed_image = sess.run(model['input_image'])
-                with app.app_context():
-                    write_image(os.path.join(current_app.config['INTERMEDIATE_IM_DIR'], str(it) + '.png'), mixed_image)
+                write_image(os.path.join(TMP_DIR, str(it) + '.png'), mixed_image)
                 yield(str(it) + '.png')
+        # clear out intermediate temporary images
+        for im_file in os.listdir(TMP_DIR):
+            if im_file != (str(num_iterations-1) + '.png'):
+                os.remove(os.path.join(TMP_DIR, im_file))
