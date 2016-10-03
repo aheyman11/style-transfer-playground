@@ -28,7 +28,7 @@ Style image: <br>
 Generated image: <br>
 <img id="my_image">
 <div id="iter_counter">
-	Number of iterations: 0
+	Setting up neural network...
 </div>
 
 {% for im_name in data: %}
@@ -36,7 +36,7 @@ Generated image: <br>
 	// get last part of directory where images are being served
 	var dir = '{{config['INTERMEDIATE_IM_DIR']}}'.match(/([^\/]*)\/*$/)[1]
 	document.getElementById("my_image").src = 'http://localhost:8000/' + dir + '/{{ im_name }}';
-	document.getElementById("iter_counter").innerHTML = 'Number of iterations: {{ im_name.split('.')[0] }}'
+	document.getElementById("iter_counter").innerHTML = 'Number of iterations: {{ im_name.split('.')[0] }}/{{num_iters}}'
 </script>
 {% endfor %}
 

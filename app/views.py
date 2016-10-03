@@ -60,11 +60,12 @@ def create_image():
 		return Response(
 			stream_template('create_image.html', 
 				style_im=style_im, 
-				data=make_image(im_path, num_iters)
+				data=make_image(im_path, num_iters+1),
+				num_iters=num_iters
 				)
 			)
 	else:
-		return render_template('create_image.html', style_im=None, data=None)
+		return render_template('create_image.html')
 
 @app.route('/authorize/<provider>')
 def oauth_authorize(provider):
