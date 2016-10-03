@@ -14,7 +14,7 @@ from app import app
 from flask import current_app
 
 # We will use the pretrained 19-layer VGG model
-def run(image_file, num_iterations):
+def make_image(image_file, num_iterations):
     VGG_MODEL = 'imagenet-vgg-verydeep-19.mat'
 
     vgg = scipy.io.loadmat(VGG_MODEL)

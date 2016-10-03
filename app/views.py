@@ -1,4 +1,5 @@
-from flask import render_template, flash, redirect, url_for, session, send_from_directory, send_file, Response, g
+from flask import render_template, flash, redirect, url_for, \
+    session, send_from_directory, send_file, Response, g, request
 from werkzeug.utils import secure_filename
 from app import app, db, lm
 from .forms import CreateImageForm
@@ -9,7 +10,7 @@ import numpy as np
 import scipy.misc
 from PIL import Image
 
-import make_image
+from .make_image import make_image
 
 from oauth import OAuthSignIn
 from flask.ext.login import login_user, current_user, login_required, logout_user
@@ -64,7 +65,7 @@ def create_image():
 	return Response(
 		stream_template('create_image.html', 
 			style_im=style_im, 
-			data=make_image.run(im_path, num_iters)
+			data=make_image(im_path, num_iters)
 			)
 		)
 
