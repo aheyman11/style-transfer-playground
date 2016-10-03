@@ -1,3 +1,25 @@
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+
+<script>
+disabled = false
+function save_image(img_html_object, result_message) {
+	if (disabled == false) {
+	    $.post('/save_image', {
+	        out_image: $(img_html_object).attr('src')
+	    }).done(function() {
+	    	disabled = true
+	        $(result_message).text('Image saved!')
+	        console.log()
+	    }).fail(function() {
+	        $(result_message).text('Error: your image could not be saved');
+	    });
+	}
+	else {
+		$(result_message).text('This image was already saved.')
+	}
+}
+</script>
+
 Style image: <br>
 
 {% if style_im != None %}
@@ -20,3 +42,8 @@ Generated image: <br>
 	document.getElementById("iter_counter").innerHTML = 'Number of iterations: {{ im_name.split('.')[0] }}'
 </script>
 {% endfor %}
+
+<span id="save">
+    <a href="javascript:save_image('#my_image', '#save_result');">Save Image</a>
+</span>
+<span id="save_result"> </span>

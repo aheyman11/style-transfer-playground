@@ -8,7 +8,7 @@ class User(UserMixin, db.Model):
 	images = db.relationship('Image', backref='author', lazy='dynamic')
 
 	def __repr__(self):
-		return '<User %r>' % (self.name)
+		return '<User %r>' % (self.nickname)
 
 	@property
 	def is_authenticated(self):
@@ -31,11 +31,10 @@ class User(UserMixin, db.Model):
 class Image(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	timestamp = db.Column(db.DateTime)
-	filepath = db.Column(db.String(64), index=True, unique=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 	def __repr__(self):
-		return '<Image %r>' % (self.filepath)
+		return '<Image %r>' % (self.id)
 
 	@staticmethod
 	def make_unique_filename(filename):

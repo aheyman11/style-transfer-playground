@@ -1,14 +1,12 @@
 from flask import render_template, flash, redirect, url_for, \
-    session, send_from_directory, send_file, Response, g, request
+    session, send_from_directory, send_file, Response, g, request, jsonify
 from werkzeug.utils import secure_filename
 from app import app, db, lm
 from .forms import CreateImageForm
-from .models import User
+from .models import User, Image
 import os
-
-import numpy as np
-import scipy.misc
-from PIL import Image
+from shutil import copyfile
+from datetime import datetime
 
 from .make_image import make_image
 
@@ -100,5 +98,18 @@ def oauth_callback(provider):
 def logout():
 	logout_user()
 	return redirect(url_for('index'))
+
+@app.route('/save_image', methods=['POST'])
+@login_required
+def save_image():
+	# get generated image from tmp directory
+	tmp_image = os.path.join(app.config['INTERMEDIATE_IM_DIR'], os.path.basename(request.form['out_image']))
+	# create new image database entry
+	image = Image(timestamp=datetime.utcnow(), author=g.user)
+	db.session.add(image)
+	db.session.commit()
+	# copy file into directory of saved generated images
+	copyfile(tmp_image, os.path.join(app.config['OUT_DIR'], str(image.id) + '.jpg'))
+	return(jsonify({'success': True}))
 
 app.secret_key = '\xbd\x90\xf9\x1e\xd4f/\xde\xef\xc2\x9b\x03\x9a/\x80\x15\xf6\x95\x0c\xf6\xf4\xb0\x10\x0e'
