@@ -6,6 +6,23 @@
     {
         float: left;
         padding: 5px;
+        position: relative;
+    }
+
+    .del_button
+    {
+      position: absolute;
+      right: 5;
+      bottom: 5;
+      font: bold 11px Arial;
+      text-decoration: none;
+      background-color: #EEEEEE;
+      color: #333333;
+      padding: 2px 6px 2px 6px;
+      border-top: 1px solid #CCCCCC;
+      border-right: 1px solid #333333;
+      border-bottom: 1px solid #333333;
+      border-left: 1px solid #CCCCCC;
     }
   </style>
 
@@ -41,12 +58,17 @@
     div.id = '{{image}}'
     var img = document.createElement("img");
     img.src = 'http://localhost:8000/' + dir + '/{{ image }}' + '.jpg';
-    var del_button = document.createElement("a");
-    del_button.innerHTML = "Delete"
     div.appendChild(img)
-    div.appendChild(del_button)
-    del_button.href = "javascript:delete_image('{{image}}');"
     document.getElementById("images").appendChild(div);
   </script>
+  {% if user.id == g.user.id %}
+  <script>
+    var del_button = document.createElement("a");
+    del_button.className = "del_button"
+    del_button.innerHTML = "Delete"
+    div.appendChild(del_button)
+    del_button.href = "javascript:delete_image('{{image}}');"
+  </script>
+  {% endif %}
   {% endfor %}
 {% endblock %}
