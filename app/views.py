@@ -112,4 +112,16 @@ def save_image():
 	copyfile(tmp_image, os.path.join(app.config['OUT_DIR'], str(image.id) + '.jpg'))
 	return(jsonify({'success': True}))
 
+@app.route('/user/<social_id>')
+@login_required
+def user(social_id):
+	user = User.query.filter_by(social_id=social_id).first()
+	if user == None:
+		flash('User %s not found.' % social_id)
+		return redirect(url_for('index'))
+	image_files = map(lambda x: str(x.id) + '.jpg', user.images)
+	return render_template('user.html',
+						   user=user,
+						   images=image_files)
+
 app.secret_key = '\xbd\x90\xf9\x1e\xd4f/\xde\xef\xc2\x9b\x03\x9a/\x80\x15\xf6\x95\x0c\xf6\xf4\xb0\x10\x0e'

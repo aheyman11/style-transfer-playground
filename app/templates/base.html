@@ -6,6 +6,7 @@
     <div>Style transfer: <a href="{{ url_for('index') }}">Home</a>
       {% if g.user.is_authenticated %}
      | <a href="{{ url_for('upload_images') }}">Create an Image</a>
+     | <a href="{{ url_for('user', social_id=g.user.social_id) }}">Your Profile</a>
      | <a href="{{ url_for('logout') }}">Logout</a>
      {% endif %}
    </div>

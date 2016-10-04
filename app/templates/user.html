@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <style>
+    .floated_img
+    {
+        float: left;
+        padding: 5px;
+    }
+  </style>
+  <table>
+      <tr valign="top">
+          <td>
+              <h1>User: {{user.nickname}}</h1>
+          </td>
+      </tr>
+  </table>
+  <hr>
+  <div id="images">
+  </div>
+  {% for image in images %}
+  <script>
+    // get last part of directory where images are being served
+    var dir = '{{config['OUT_DIR']}}'.match(/([^\/]*)\/*$/)[1];
+    var div = document.createElement("div");
+    div.className = "floated_img"
+    var img = document.createElement("img");
+    img.src = 'http://localhost:8000/' + dir + '/{{ image }}';
+    div.appendChild(img)
+    document.getElementById("images").appendChild(div);
+  </script>
+  {% endfor %}
+{% endblock %}
