@@ -119,9 +119,24 @@ def user(social_id):
 	if user == None:
 		flash('User %s not found.' % social_id)
 		return redirect(url_for('index'))
-	image_files = map(lambda x: str(x.id) + '.jpg', user.images)
+	image_files = map(lambda x: str(x.id), user.images)
 	return render_template('user.html',
 						   user=user,
 						   images=image_files)
+
+@app.route('/delete_image', methods=['POST'])
+@login_required
+def delete_image():
+	# get file location from out directory
+	img_location = os.path.join(app.config['OUT_DIR'], os.path.basename(request.form['id']) + '.jpg')
+	# get database entry
+	image = Image.query.filter_by(id=request.form['id']).first()
+	db.session.delete(image)
+	db.session.commit()
+	print("database entry deleted")
+	# delete image from filesystem
+	os.remove(img_location)
+	print("file deleted")
+	return(jsonify({'success': True}))
 
 app.secret_key = '\xbd\x90\xf9\x1e\xd4f/\xde\xef\xc2\x9b\x03\x9a/\x80\x15\xf6\x95\x0c\xf6\xf4\xb0\x10\x0e'

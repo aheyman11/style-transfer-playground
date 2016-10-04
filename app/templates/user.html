@@ -8,6 +8,19 @@
         padding: 5px;
     }
   </style>
+
+  <script>
+    function delete_image(img_id) {
+      // remove element from DOM
+      var element = document.getElementById(img_id);
+      element.parentNode.removeChild(element);
+      // delete corresponding entry in database and remove from filesystem
+      $.post('/delete_image', {
+          id: img_id
+      })
+    }
+  </script>
+
   <table>
       <tr valign="top">
           <td>
@@ -24,9 +37,15 @@
     var dir = '{{config['OUT_DIR']}}'.match(/([^\/]*)\/*$/)[1];
     var div = document.createElement("div");
     div.className = "floated_img"
+    // we give div same id as image name for convenience in delete_image method
+    div.id = '{{image}}'
     var img = document.createElement("img");
-    img.src = 'http://localhost:8000/' + dir + '/{{ image }}';
+    img.src = 'http://localhost:8000/' + dir + '/{{ image }}' + '.jpg';
+    var del_button = document.createElement("a");
+    del_button.innerHTML = "Delete"
     div.appendChild(img)
+    div.appendChild(del_button)
+    del_button.href = "javascript:delete_image('{{image}}');"
     document.getElementById("images").appendChild(div);
   </script>
   {% endfor %}
