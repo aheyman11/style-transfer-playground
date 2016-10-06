@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+from coverage import coverage
+cov = coverage(branch=True, omit=['tests.py'])
+cov.start()
+
 import os
 import unittest
 
@@ -8,6 +12,7 @@ from app.models import User, Image
 
 from app.make_image import make_image
 import os.path
+
 
 class TestCase(unittest.TestCase):
     def setUp(self):
@@ -21,6 +26,14 @@ class TestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
+    def test_user(self):
+        u = User(social_id="facebook$123", nickname="Test User")
+        db.session.add(u)
+        db.session.commit()
+        assert u.is_authenticated is True
+        assert u.is_active is True
+        assert u.is_anonymous is False
+
     # check that make_image function cleans up all but last temporary image
     def test_make_image_cleanup(self):
         image_generator = make_image('tests/starry_night1.jpg', 5)
@@ -30,25 +43,15 @@ class TestCase(unittest.TestCase):
         for image in temp_images[0:-1]:
             assert not os.path.exists(os.path.join(app.config['INTERMEDIATE_IM_DIR'], image))
 
-
-    # def test_avatar(self):
-    #     u = User(nickname='john', email='john@example.com')
-    #     avatar = u.avatar(128)
-    #     expected = 'http://www.gravatar.com/avatar/d4c74594d841139328695756648b6bd6'
-    #     assert avatar[0:len(expected)] == expected
-
-    # def test_make_unique_nickname(self):
-    #     u = User(nickname='john', email='john@example.com')
-    #     db.session.add(u)
-    #     db.session.commit()
-    #     nickname = User.make_unique_nickname('john')
-    #     assert nickname != 'john'
-    #     u = User(nickname=nickname, email='susan@example.com')
-    #     db.session.add(u)
-    #     db.session.commit()
-    #     nickname2 = User.make_unique_nickname('john')
-    #     assert nickname2 != 'john'
-    #     assert nickname2 != nickname
-
 if __name__ == '__main__':
-    unittest.main()
+    try:
+        unittest.main()
+    except:
+        pass
+    cov.stop()
+    cov.save()
+    print("\n\nCoverage Report:\n")
+    cov.report(show_missing=True)
+    print("HTML version: " + os.path.join(basedir, "tests/coverage/index.html"))
+    cov.html_report(directory='tests/coverage')
+    cov.erase()
