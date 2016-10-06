@@ -155,13 +155,10 @@ def make_image(image_file, num_iterations):
         sess.run(model['input_image'].assign(noise_image))
         for it in range(num_iterations):
             sess.run(train_step)
-            if it % 1 == 0:
-                print("Iteration: " + str(it))
-            if it%1 == 0:
-                # dump every 100 iteration.
-                mixed_image = sess.run(model['input_image'])
-                write_image(os.path.join(TMP_DIR, str(it) + '.png'), mixed_image)
-                yield(str(it) + '.png')
+            print("Iteration: " + str(it))
+            mixed_image = sess.run(model['input_image'])
+            write_image(os.path.join(TMP_DIR, str(it) + '.png'), mixed_image)
+            yield(str(it) + '.png')
         # clear out intermediate temporary images
         for im_file in os.listdir(TMP_DIR):
             if im_file != (str(num_iterations-1) + '.png'):
