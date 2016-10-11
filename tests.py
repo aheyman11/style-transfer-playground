@@ -14,8 +14,6 @@ from app.models import User, Image
 from app.make_image import make_image
 import os.path
 
-import oauth
-
 class TestCase(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
@@ -52,24 +50,23 @@ class TestCase(unittest.TestCase):
         # should redirect to facebook's authorization endpoint
         assert rv.location.split('?')[0] == 'https://graph.facebook.com/oauth/authorize'
 
-    
-    # we mock out the entire callback method because it depends on request.args
-    # coming from an external client (Facebook)
-    @patch.object(oauth.FacebookSignIn, 'callback')
-    def test_facebook_oath_callback(self, mock_callback):
-        mock_callback.return_value = 'facebook$id1', 'Andrea'
-        rv = self.app.get('/callback/facebook')
+    @patch('oauth.OAuth2Service.get_auth_session')
+    def test_facebook_oath_callback2(self, mock_get_auth_session):        
+        mock_session = MagicMock()
+        mock_get_response = MagicMock(status_code=200, json=MagicMock(return_value={'first_name': 'Andrea', 'id': '3617923766551'}))
+        mock_session.get.return_value = mock_get_response
+        mock_get_auth_session.return_value = mock_session
+        rv = self.app.get('/callback/facebook?code=some_code')
         # when response is new user, db entry created
         assert db.session.query(User).count() == 1
         # when response is existing user, no entry added
-        mock_callback.return_value = 'facebook$id1', 'Andy'
-        self.app = app.test_client()
-        rv = self.app.get('/callback/facebook')
-        assert User.query.filter_by(social_id='facebook$id1').count() == 1
+        mock_get_response.json.return_value = {'first_name': 'Andy', 'id': '3617923766551'}
+        self.app = app.test_client() # need to reset test_client when making another request
+        rv = self.app.get('/callback/facebook?code=some_code')
+        assert User.query.filter_by(social_id='facebook$3617923766551').count() == 1
         # if user's nickname has changed, db entry is updated
-        user = User.query.filter_by(social_id='facebook$id1').first()
+        user = User.query.filter_by(social_id='facebook$3617923766551').first()
         assert user.nickname == 'Andy'
-        # check that user is logged in
 
 if __name__ == '__main__':
     try:
