@@ -49,6 +49,7 @@ class FacebookSignIn(OAuthSignIn):
         )
 
     def callback(self):
+        # request here is coming from Facebook's call to our /callback endpoint
         if 'code' not in request.args:
             return None, None
         oauth_session = self.service.get_auth_session(
@@ -59,7 +60,7 @@ class FacebookSignIn(OAuthSignIn):
         me = oauth_session.get('me?fields=id,first_name').json()
         return (
             'facebook$' + me['id'],
-            me.get('first_name'),  # use first name as user nickname
+            me.get('first_name')  # use first name as user nickname
         )
 
 class GithubSignIn(OAuthSignIn):
