@@ -14,6 +14,7 @@ import flask
 
 from app.make_image import make_image
 import os.path
+from shutil import copyfile
 
 from werkzeug.datastructures import FileStorage
 
@@ -22,6 +23,9 @@ class TestCase(unittest.TestCase):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'test.db')
+        app.config['INTERMEDIATE_IM_DIR'] = os.path.join(basedir, 'tests', 'tmp')
+        app.config['UPLOAD_DIR'] = os.path.join(basedir, 'tests', 'uploads')
+        app.config['OUT_DIR'] = os.path.join(basedir, 'tests', 'out')
         self.app = app.test_client()
         db.create_all()
 
@@ -82,11 +86,35 @@ class TestCase(unittest.TestCase):
             # need test_request_context so we can access session
             with app.test_request_context(path='/upload_images', method='POST', data=dict(num_iter='3', style_im=test_file)):
                 rv = app.dispatch_request() # need this to actually send request
+                # assert session contains the right data
                 assert flask.session['num_iters'] == 3
                 assert flask.session['style_im'] == 'tests_starry_night1.jpg'
-            # rv=self.app.post('/upload_images', data=dict(num_iter='3', style_im=test_file))
         assert os.path.exists(os.path.join(app.config['UPLOAD_DIR'], 'tests_starry_night1.jpg'))
-        # assert session contains the right data
+
+    def test_create_image(self):
+        with app.test_request_context(path='/create_image'):
+            flask.session['num_iters'] = 3
+            flask.session['style_im'] = 'tests_starry_night1.jpg'
+            rv = app.dispatch_request()
+        assert rv.status_code == 200
+
+    def test_save_image(self):
+        # copy final generated image into right directory
+        if not os.path.exists(os.path.join(app.config['INTERMEDIATE_IM_DIR'], '4.png')):
+            copyfile('tests/4.png', os.path.join(app.config['INTERMEDIATE_IM_DIR'], '4.png'))
+        # create fake user
+        user = User(social_id="facebook$123", nickname="Test User")
+        db.session.add(user)
+        db.session.commit()
+        with app.test_request_context(path='/save_image', method='POST', data={'out_image': '4.png'}):
+            flask.g.user = user
+            app.dispatch_request()
+        # assert that image entry has been added to database
+        user = User.query.filter_by(social_id="facebook$123").first()
+        assert Image.query.filter_by(author=user).count() == 1
+        image_id = Image.query.filter_by(author=user).first().id
+        # assert that file has been saved in filesystem
+        assert os.path.exists(os.path.join(app.config['OUT_DIR'], str(image_id) + '.jpg'))
 
 
 if __name__ == '__main__':
