@@ -116,6 +116,44 @@ class TestCase(unittest.TestCase):
         # assert that file has been saved in filesystem
         assert os.path.exists(os.path.join(app.config['OUT_DIR'], str(image_id) + '.jpg'))
 
+    # set up work common to both the following tests
+    # create two users, user1 and user2
+    # create one image whose author is user1
+    def delete_image_setup(self):
+        # place image in out directory if it's not already there
+        if not os.path.exists(os.path.join(app.config['OUT_DIR'], '1.jpg')):
+            copyfile('tests/4.png', os.path.join(app.config['OUT_DIR'], '1.jpg'))
+        user1 = User(social_id="facebook$1", nickname="user1")
+        user2 = User(social_id="facebook$2", nickname="user2")
+        db.session.add(user1)
+        db.session.add(user2)
+        db.session.commit()
+        user1 = User.query.filter_by(social_id="facebook$1").first()
+        image = Image(author=user1)
+        db.session.add(image)
+        db.session.commit()
+
+    # user1 deletes her own image: should remove from db and filesystem
+    def test_delete_image_authorized(self):
+        self.delete_image_setup()
+        user1 = User.query.filter_by(social_id="facebook$1").first()
+        image = Image.query.first()
+        with app.test_request_context(path='/delete_image', method='POST', data={'id': image.id}):
+            flask.g.user = user1
+            rv = app.dispatch_request()
+        assert Image.query.filter_by(id=image.id).count() == 0
+        assert not os.path.exists(os.path.join(app.config['OUT_DIR'], str(image.id) + '.jpg'))
+    
+    # user2 deletes user1's image: should do nothing
+    def test_delete_image_unauthorized(self):
+        self.delete_image_setup()
+        user2 = User.query.filter_by(social_id="facebook$2").first()
+        image = Image.query.first()
+        with app.test_request_context(path='/delete_image', method='POST', data={'id': image.id}):
+            flask.g.user = user2
+            rv = app.dispatch_request()
+        assert Image.query.filter_by(id=image.id).count() == 1
+        assert os.path.exists(os.path.join(app.config['OUT_DIR'], str(image.id) + '.jpg'))
 
 if __name__ == '__main__':
     try:

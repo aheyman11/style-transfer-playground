@@ -131,13 +131,16 @@ def delete_image():
 	img_location = os.path.join(app.config['OUT_DIR'], os.path.basename(request.form['id']) + '.jpg')
 	# get database entry
 	image = Image.query.filter_by(id=request.form['id']).first()
-	db.session.delete(image)
-	db.session.commit()
-	print("database entry deleted")
-	# delete image from filesystem
-	os.remove(img_location)
-	print("file deleted")
-	return(jsonify({'success': True}))
+	if g.user == image.author:
+		db.session.delete(image)
+		db.session.commit()
+		print("database entry deleted")
+		# delete image from filesystem
+		os.remove(img_location)
+		print("file deleted")
+		return(jsonify({'success': True}))
+	else:
+		return jsonify({'success': False})
 
 @app.errorhandler(404)
 def not_found_error(error):
