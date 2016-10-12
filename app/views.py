@@ -1,5 +1,6 @@
 from flask import render_template, flash, redirect, url_for, \
-    session, send_from_directory, send_file, Response, g, request, jsonify
+    session, send_from_directory, send_file, Response, g, request, \
+    jsonify, stream_with_context
 from werkzeug.utils import secure_filename
 from app import app, db, lm
 from .forms import CreateImageForm
@@ -60,7 +61,7 @@ def create_image():
 		return Response(
 			stream_template('create_image.html', 
 				style_im=style_im, 
-				data=make_image(im_path, num_iters+1),
+				data=stream_with_context(make_image(im_path, num_iters+1)),
 				num_iters=num_iters
 				)
 			)

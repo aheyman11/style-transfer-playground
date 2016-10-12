@@ -1,5 +1,6 @@
-<script src="http://code.jquery.com/jquery-latest.js"></script>
+{% extends "base.html" %}
 
+{% block content %}
 <script>
 disabled = false
 function save_image(img_html_object, result_message) {
@@ -47,3 +48,5 @@ Generated image: <br>
 {% else %}
 No image uploaded. <br>
 {% endif %}
+
+{% endblock %}
