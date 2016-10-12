@@ -30,8 +30,8 @@ def index():
 		user = None
 	return render_template('index.html', user=user)
 
-@app.route('/upload_images', methods=('GET', 'POST'))
 @login_required
+@app.route('/upload_images', methods=('GET', 'POST'))
 def upload_images():
 	form = CreateImageForm()
 	if form.validate_on_submit():
@@ -48,8 +48,8 @@ def stream_template(template_name, **context):
 	rv = t.stream(context)
 	return rv
 
-@app.route('/create_image')
 @login_required
+@app.route('/create_image')
 def create_image():
 	if 'style_im' in session:
 		style_im = session['style_im']
@@ -99,8 +99,8 @@ def logout():
 	logout_user()
 	return redirect(url_for('index'))
 
-@app.route('/save_image', methods=['POST'])
 @login_required
+@app.route('/save_image', methods=['POST'])
 def save_image():
 	# get generated image from tmp directory
 	tmp_image = os.path.join(app.config['INTERMEDIATE_IM_DIR'], os.path.basename(request.form['out_image']))
@@ -112,8 +112,8 @@ def save_image():
 	copyfile(tmp_image, os.path.join(app.config['OUT_DIR'], str(image.id) + '.jpg'))
 	return(jsonify({'success': True}))
 
-@app.route('/user/<social_id>')
 @login_required
+@app.route('/user/<social_id>')
 def user(social_id):
 	user = User.query.filter_by(social_id=social_id).first()
 	if user == None:
@@ -124,8 +124,8 @@ def user(social_id):
 						   user=user,
 						   images=image_files)
 
-@app.route('/delete_image', methods=['POST'])
 @login_required
+@app.route('/delete_image', methods=['POST'])
 def delete_image():
 	# get file location from out directory
 	img_location = os.path.join(app.config['OUT_DIR'], os.path.basename(request.form['id']) + '.jpg')

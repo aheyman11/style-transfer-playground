@@ -10,9 +10,12 @@ from unittest.mock import patch, MagicMock
 from config import basedir
 from app import app, db
 from app.models import User, Image
+import flask
 
 from app.make_image import make_image
 import os.path
+
+from werkzeug.datastructures import FileStorage
 
 class TestCase(unittest.TestCase):
     def setUp(self):
@@ -67,6 +70,24 @@ class TestCase(unittest.TestCase):
         # if user's nickname has changed, db entry is updated
         user = User.query.filter_by(social_id='facebook$3617923766551').first()
         assert user.nickname == 'Andy'
+
+    def test_upload_images(self):
+        # remove test file from uploads directory if present
+        if os.path.exists(os.path.join(app.config['UPLOAD_DIR'], 'tests_starry_night1.jpg')):
+            os.remove(os.path.join(app.config['UPLOAD_DIR'], 'tests_starry_night1.jpg'))
+        # create FileStorage object from input file
+        test_file = None
+        with open('tests/starry_night1.jpg', 'rb') as fp:
+            test_file = FileStorage(fp)
+            # need test_request_context so we can access session
+            with app.test_request_context(path='/upload_images', method='POST', data=dict(num_iter='3', style_im=test_file)):
+                rv = app.dispatch_request() # need this to actually send request
+                assert flask.session['num_iters'] == 3
+                assert flask.session['style_im'] == 'tests_starry_night1.jpg'
+            # rv=self.app.post('/upload_images', data=dict(num_iter='3', style_im=test_file))
+        assert os.path.exists(os.path.join(app.config['UPLOAD_DIR'], 'tests_starry_night1.jpg'))
+        # assert session contains the right data
+
 
 if __name__ == '__main__':
     try:
