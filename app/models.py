@@ -35,15 +35,3 @@ class Image(db.Model):
 
 	def __repr__(self):
 		return '<Image %r>' % (self.id)
-
-	@staticmethod
-	def make_unique_filename(filename):
-		if Image.query.filter_by(filename=filename).first() is None:
-			return filename
-		version = 2
-		while True:
-			new_filename = filename + str(version)
-			if Image.query.filter_by(filename=new_filename).first() is None:
-				break
-			version += 1
-		return new_filename
