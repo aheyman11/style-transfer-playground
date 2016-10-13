@@ -55,8 +55,6 @@ def create_image():
 	if 'style_im' in session:
 		style_im = session['style_im']
 		num_iters = session['num_iters']
-		session.pop('style_im', None)
-		session.pop('num_iters', None)
 		im_path = os.path.join(app.config['UPLOAD_DIR'], style_im)
 		return Response(
 			stream_template('create_image.html', 
@@ -106,11 +104,18 @@ def save_image():
 	# get generated image from tmp directory
 	tmp_image = os.path.join(app.config['INTERMEDIATE_IM_DIR'], os.path.basename(request.form['out_image']))
 	# create new image database entry
-	image = Image(timestamp=datetime.utcnow(), author=g.user)
+	image = Image(
+		timestamp=datetime.utcnow(), 
+		author=g.user, 
+		style_im=session['style_im'],
+		num_iters=session['num_iters']
+	)
 	db.session.add(image)
 	db.session.commit()
 	# copy file into directory of saved generated images
 	copyfile(tmp_image, os.path.join(app.config['OUT_DIR'], str(image.id) + '.jpg'))
+	session.pop('style_im', None)
+	session.pop('num_iters', None)
 	return(jsonify({'success': True}))
 
 @login_required
@@ -120,7 +125,10 @@ def user(social_id):
 	if user == None:
 		flash('User %s not found.' % social_id)
 		return redirect(url_for('index'))
-	image_files = map(lambda x: str(x.id), user.images)
+	image_files = map(lambda x: 
+		{'id': str(x.id), 'num_iters': x.num_iters, 'style_im': x.style_im}, 
+		user.images
+	)
 	return render_template('user.html',
 						   user=user,
 						   images=image_files)

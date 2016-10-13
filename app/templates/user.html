@@ -9,6 +9,11 @@
         position: relative;
     }
 
+    .floated_img:hover .description
+    {
+      opacity: 1;
+    }
+
     .del_button
     {
       position: absolute;
@@ -23,6 +28,18 @@
       border-right: 1px solid #333333;
       border-bottom: 1px solid #333333;
       border-left: 1px solid #CCCCCC;
+    }
+
+    .description
+    {
+      position: absolute;
+      top: 5px;
+      opacity: 0;
+      transition: opacity .3s ease;
+      background-color: rgba(255,255,255,0.7);
+      width: 224px;
+      margin: 0px;
+      font: 11px Arial;
     }
   </style>
 
@@ -55,10 +72,14 @@
     var div = document.createElement("div");
     div.className = "floated_img"
     // we give div same id as image name for convenience in delete_image method
-    div.id = '{{image}}'
+    div.id = "{{image['id']}}"
+    var description_p = document.createElement("p");
+    description_p.innerText = "Style image: {{image['style_im']}}\nIterations: {{image['num_iters']}}";
+    description_p.className = "description"
     var img = document.createElement("img");
-    img.src = 'http://localhost:8000/' + dir + '/{{ image }}' + '.jpg';
+    img.src = 'http://localhost:8000/' + dir + "/{{ image['id'] }}" + '.jpg';
     div.appendChild(img)
+    div.appendChild(description_p)
     document.getElementById("images").appendChild(div);
   </script>
   {% if user.id == g.user.id %}
@@ -67,7 +88,7 @@
     del_button.className = "del_button"
     del_button.innerHTML = "Delete"
     div.appendChild(del_button)
-    del_button.href = "javascript:delete_image('{{image}}');"
+    del_button.href = "javascript:delete_image('{{image['id']}}');"
   </script>
   {% endif %}
   {% endfor %}
