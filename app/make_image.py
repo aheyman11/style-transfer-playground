@@ -160,7 +160,13 @@ def make_image(style_image_file, content_image_file, num_iterations):
         # content_loss = 0
         print("content loss tensor created")
 
-        total_loss = 100 * style_loss + 5 * content_loss
+        # construct total variation loss
+        tv_loss = 2 * (
+                (tf.nn.l2_loss(model['input_image'][:,1:,:,:] - model['input_image'][:,:224-1,:,:])) +
+                (tf.nn.l2_loss(model['input_image'][:,:,1:,:] - model['input_image'][:,:,:224-1,:])))
+        print("tv loss tensor created")
+
+        total_loss = 100 * style_loss + 5 * content_loss + 100*tv_loss
 
         optimizer = tf.train.AdamOptimizer(10)
         train_step = optimizer.minimize(total_loss)
