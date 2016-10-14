@@ -107,7 +107,7 @@ def make_image(style_image_file, content_image_file, num_iterations):
         M = a.shape[1] * a.shape[2]
         A = gram_matrix(a, N, M)
         G = gram_matrix(x, N, M)
-        loss = (1.0 / (4 * N**2 * M**2)) * tf.reduce_sum(tf.pow(G - A, 2))
+        loss = 2 * tf.reduce_sum(tf.pow(G - A, 2)) / ((M**2)*(N**2)*G.eval().size)
         return loss
 
     def style_difference(session):
@@ -118,7 +118,7 @@ def make_image(style_image_file, content_image_file, num_iterations):
 
     def content_difference(session):
         content_loss = (2 * tf.nn.l2_loss(
-            session.run(model['relu4_2']) - model['relu4_2']))
+            session.run(model['relu4_2']) - model['relu4_2']))/(model['relu4_2'].eval().size)
         return content_loss
 
     def generate_noise_image():
@@ -160,10 +160,11 @@ def make_image(style_image_file, content_image_file, num_iterations):
         # content_loss = 0
         print("content loss tensor created")
 
-        # construct total variation loss
+        # construct total variation loss (to make images less grainy)
+        # this works by comparing the image with itself shifted over by 1 pixel in both directions
         tv_loss = 2 * (
                 (tf.nn.l2_loss(model['input_image'][:,1:,:,:] - model['input_image'][:,:224-1,:,:])) +
-                (tf.nn.l2_loss(model['input_image'][:,:,1:,:] - model['input_image'][:,:,:224-1,:])))
+                (tf.nn.l2_loss(model['input_image'][:,:,1:,:] - model['input_image'][:,:,:224-1,:])))/(224*223*3)
         print("tv loss tensor created")
 
         total_loss = 100 * style_loss + 5 * content_loss + 100*tv_loss
