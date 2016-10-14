@@ -14,7 +14,7 @@ from app import app
 from flask import current_app
 
 # We will use the pretrained 19-layer VGG model
-def make_image(image_file, num_iterations):
+def make_image(style_image_file, content_image_file, num_iterations):
     with app.app_context():
         TMP_DIR = current_app.config['INTERMEDIATE_IM_DIR']
 
@@ -113,8 +113,13 @@ def make_image(image_file, num_iterations):
     def style_difference(session):
         # global model
         weights = [1.0, 1.0, 1.0, 1.0, 1.0]
-        layer_losses = [loss_by_layer(session.run(model['conv' + str(i) + '_1']), model['conv' + str(i) + '_1']) for i in range(1, 6)] 
+        layer_losses = [loss_by_layer(session.run(model['relu' + str(i) + '_1']), model['relu' + str(i) + '_1']) for i in range(1, 6)] 
         return sum(layer_losses)
+
+    def content_difference(session):
+        content_loss = (2 * tf.nn.l2_loss(
+            session.run(model['relu4_2']) - model['relu4_2']))
+        return content_loss
 
     def generate_noise_image():
         return np.random.uniform(0, 256,(1, 224, 224, 3)).astype('float32')
@@ -136,20 +141,29 @@ def make_image(image_file, num_iterations):
 
     with tf.Session(graph=graph) as sess:
         
-        # Load the image.
-        style_image = get_imarray(image_file)
+        # Load the images.
+        style_image = get_imarray(style_image_file)
+        content_image = get_imarray(content_image_file)
 
         noise_image = generate_noise_image()
 
-        sess.run(tf.initialize_all_variables())
-
         # Construct style_loss tensor using style_image.
+        sess.run(tf.initialize_all_variables())
         sess.run(model['input_image'].assign(style_image))
         style_loss = style_difference(sess)
         print("style loss tensor created")
 
-        optimizer = tf.train.AdamOptimizer(2.0)
-        train_step = optimizer.minimize(style_loss)
+        # Construct content_loss tensor
+        sess.run(tf.initialize_all_variables())
+        sess.run(model['input_image'].assign(content_image))
+        content_loss = content_difference(sess)
+        # content_loss = 0
+        print("content loss tensor created")
+
+        total_loss = 100 * style_loss + 5 * content_loss
+
+        optimizer = tf.train.AdamOptimizer(10)
+        train_step = optimizer.minimize(total_loss)
 
         sess.run(tf.initialize_all_variables())
         sess.run(model['input_image'].assign(noise_image))

@@ -36,9 +36,12 @@ def index():
 def upload_images():
 	form = CreateImageForm()
 	if form.validate_on_submit():
-		filename = secure_filename(form.style_im.data.filename)
-		form.style_im.data.save(os.path.join(app.config['UPLOAD_DIR'], filename))
-		session['style_im'] = filename
+		style_filename = secure_filename(form.style_im.data.filename)
+		form.style_im.data.save(os.path.join(app.config['UPLOAD_DIR'], style_filename))
+		content_filename = secure_filename(form.content_im.data.filename)
+		form.content_im.data.save(os.path.join(app.config['UPLOAD_DIR'], content_filename))
+		session['style_im'] = style_filename
+		session['content_im'] = content_filename
 		session['num_iters'] = form.num_iter.data
 		return redirect(url_for('create_image'))
 	return render_template('upload_images.html', form=form)
@@ -54,12 +57,16 @@ def stream_template(template_name, **context):
 def create_image():
 	if 'style_im' in session:
 		style_im = session['style_im']
+		content_im = session['content_im']
 		num_iters = session['num_iters']
-		im_path = os.path.join(app.config['UPLOAD_DIR'], style_im)
+		style_im_path = os.path.join(app.config['UPLOAD_DIR'], style_im)
+		content_im_path = os.path.join(app.config['UPLOAD_DIR'], content_im)
+
 		return Response(
 			stream_template('create_image.html', 
-				style_im=style_im, 
-				data=stream_with_context(make_image(im_path, num_iters+1)),
+				style_im=style_im,
+				content_im=content_im, 
+				data=stream_with_context(make_image(style_im_path, content_im_path, num_iters+1)),
 				num_iters=num_iters
 				)
 			)

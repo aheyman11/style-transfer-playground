@@ -1,6 +1,19 @@
 {% extends "base.html" %}
+.style_div {
 
 {% block content %}
+<style>
+#style_div {
+	width: 224px;
+	float: left;
+}
+
+#content_div {
+	margin-left: 230px;
+}
+
+</style>
+
 <script>
 disabled = false
 function save_image(img_html_object, result_message) {
@@ -22,9 +35,17 @@ function save_image(img_html_object, result_message) {
 </script>
 
 {% if style_im != None %}
+<div id="style_div">
 Style image: <br>
 
-<img src="http://localhost:8000/uploads/{{style_im}}" width="224px" heigh="224px"> <br>
+<img src="http://localhost:8000/uploads/{{style_im}}" width="224px" height="224px"> <br>
+</div>
+
+<div id="content_div">
+Content image: <br>
+
+<img src="http://localhost:8000/uploads/{{content_im}}" width="224px" height="224px"> <br>
+</div>
 
 Generated image: <br>
 <img id="my_image">

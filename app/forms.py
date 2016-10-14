@@ -8,6 +8,10 @@ class CreateImageForm(Form):
 		FileRequired(),
 		FileAllowed(['jpg', 'png'], 'Images only (jpg or png)!')
 	])
+	content_im = FileField('Your content image', validators=[
+		FileRequired(),
+		FileAllowed(['jpg', 'png'], 'Images only (jpg or png)!')
+	])
 	num_iter = IntegerField('num_iter', validators=[
 		DataRequired('This must be an integer'),
 		NumberRange(min=0, message='Number must be positive')
