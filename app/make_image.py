@@ -7,6 +7,7 @@ from scipy import ndimage, misc
 from six.moves import cPickle as pickle
 import tensorflow as tf
 import numpy as np
+import time
 
 import scipy.io
 
@@ -18,6 +19,10 @@ def make_image(style_image_file, content_image_file, num_iterations):
     with app.app_context():
         TMP_DIR = current_app.config['INTERMEDIATE_IM_DIR']
 
+    # clear out previous temporary images
+    for im_file in os.listdir(TMP_DIR):
+        os.remove(os.path.join(TMP_DIR, im_file))
+        
     VGG_MODEL = 'imagenet-vgg-verydeep-19.mat'
 
     vgg = scipy.io.loadmat(VGG_MODEL)
@@ -178,9 +183,6 @@ def make_image(style_image_file, content_image_file, num_iterations):
             sess.run(train_step)
             print("Iteration: " + str(it))
             mixed_image = sess.run(model['input_image'])
-            write_image(os.path.join(TMP_DIR, str(it) + '.png'), mixed_image)
-            yield(str(it) + '.png')
-        # clear out intermediate temporary images
-        # for im_file in os.listdir(TMP_DIR):
-        #     if im_file != (str(num_iterations-1) + '.png'):
-        #         os.remove(os.path.join(TMP_DIR, im_file))
+            filename = str(it) + '.' + str(time.time()) + '.png'
+            write_image(os.path.join(TMP_DIR, filename), mixed_image)
+            yield(filename)
