@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-.style_div {
 
 {% block content %}
 <style>
@@ -15,6 +14,7 @@
 </style>
 
 <script>
+var tmp_images = []
 disabled = false
 function save_image(img_html_object, result_message) {
 	if (disabled == false) {
@@ -57,15 +57,31 @@ Generated image: <br>
 <script>
 	// get last part of directory where images are being served
 	var dir = '{{config['INTERMEDIATE_IM_DIR']}}'.match(/([^\/]*)\/*$/)[1]
-	document.getElementById("my_image").src = 'http://localhost:8000/' + dir + '/{{ im_name }}';
+	image_path = 'http://localhost:8000/' + dir + '/{{ im_name }}';
+	tmp_images.push(image_path);
+	document.getElementById("my_image").src = image_path;
 	document.getElementById("iter_counter").innerHTML = 'Number of iterations: {{ im_name.split('.')[0] }}/{{num_iters}}'
 </script>
 {% endfor %}
 
 <span id="save">
-    <a href="javascript:save_image('#my_image', '#save_result');">Save Image</a>
+    <a href="javascript:save_image('#my_image', '#save_result');">Save Image</a> <br>
 </span>
 <span id="save_result"> </span>
+
+Gif: <br>
+<script>
+gifshot.createGIF({
+    'images': tmp_images
+},function(obj) {
+    if(!obj.error) {
+        var image = obj.image,
+        animatedImage = document.createElement('img');
+        animatedImage.src = image;
+        document.body.appendChild(animatedImage);
+    }
+});
+</script>
 {% else %}
 No image uploaded. <br>
 {% endif %}

@@ -181,6 +181,6 @@ def make_image(style_image_file, content_image_file, num_iterations):
             write_image(os.path.join(TMP_DIR, str(it) + '.png'), mixed_image)
             yield(str(it) + '.png')
         # clear out intermediate temporary images
-        for im_file in os.listdir(TMP_DIR):
-            if im_file != (str(num_iterations-1) + '.png'):
-                os.remove(os.path.join(TMP_DIR, im_file))
+        # for im_file in os.listdir(TMP_DIR):
+        #     if im_file != (str(num_iterations-1) + '.png'):
+        #         os.remove(os.path.join(TMP_DIR, im_file))
