@@ -41,13 +41,15 @@ Style image: <br>
 <img src="http://localhost:8000/uploads/{{style_im}}" style="width:224px;height:224px"> <br>
 </div>
 
-<div id="content_div">
+<div id="content_div" style="width:224px;height:224px">
+{% if content_im != "" %}
 Content image: <br>
 
 <img src="http://localhost:8000/uploads/{{content_im}}" style="width:224px;height:224px"> <br>
+{% endif %}
 </div>
 
-Generated image: <br>
+<br>Generated image: <br>
 <img id="my_image">
 <div id="iter_counter">
 	Setting up neural network...

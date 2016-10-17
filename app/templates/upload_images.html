@@ -7,7 +7,7 @@
     <form class="form-horizontal" action="" method="post" name="upload_images" enctype="multipart/form-data">
       {{ form.hidden_tag() }}
       <div class="control-group{% if form.errors.post %} error{% endif %}">
-        <label class="control-label" for="style_im">Upload your style image (will be compressed to 224 x 224):</label>
+        <label class="control-label" for="style_im">Upload your style image:</label>
         <div class="controls">
             {{ form.style_im(class = "span4") }}
             {% for error in form.style_im.errors %}
@@ -16,7 +16,7 @@
         </div>
       </div>
         <div class="control-group{% if form.errors.post %} error{% endif %}">
-          <label class="control-label" for="content_im">Upload your content image (will be compressed to 224 x 224):</label>
+          <label class="control-label" for="content_im">Upload your content image (or leave blank for style only):</label>
           <div class="controls">
             {{ form.content_im(class="span4") }}
             {% for error in form.content_im.errors %}

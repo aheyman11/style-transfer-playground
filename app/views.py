@@ -39,7 +39,8 @@ def upload_images():
 		style_filename = secure_filename(form.style_im.data.filename)
 		form.style_im.data.save(os.path.join(app.config['UPLOAD_DIR'], style_filename))
 		content_filename = secure_filename(form.content_im.data.filename)
-		form.content_im.data.save(os.path.join(app.config['UPLOAD_DIR'], content_filename))
+		if content_filename:
+			form.content_im.data.save(os.path.join(app.config['UPLOAD_DIR'], content_filename))
 		session['style_im'] = style_filename
 		session['content_im'] = content_filename
 		session['num_iters'] = form.num_iter.data
@@ -60,13 +61,16 @@ def create_image():
 		content_im = session['content_im']
 		num_iters = session['num_iters']
 		style_im_path = os.path.join(app.config['UPLOAD_DIR'], style_im)
-		content_im_path = os.path.join(app.config['UPLOAD_DIR'], content_im)
+		if content_im:
+			content_im_path = os.path.join(app.config['UPLOAD_DIR'], content_im)
+		else:
+			content_im_path = None
 
 		return Response(
 			stream_template('create_image.html', 
 				style_im=style_im,
 				content_im=content_im, 
-				data=stream_with_context(make_image(style_im_path, content_im_path, num_iters+1)),
+				data=stream_with_context(make_image(num_iters+1, style_im_path, content_im_path)),
 				num_iters=num_iters
 				)
 			)
