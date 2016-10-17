@@ -22,7 +22,7 @@ def make_image(style_image_file, content_image_file, num_iterations):
     # clear out previous temporary images
     for im_file in os.listdir(TMP_DIR):
         os.remove(os.path.join(TMP_DIR, im_file))
-        
+
     VGG_MODEL = 'imagenet-vgg-verydeep-19.mat'
 
     vgg = scipy.io.loadmat(VGG_MODEL)
@@ -172,7 +172,7 @@ def make_image(style_image_file, content_image_file, num_iterations):
                 (tf.nn.l2_loss(model['input_image'][:,:,1:,:] - model['input_image'][:,:,:224-1,:])))/(224*223*3)
         print("tv loss tensor created")
 
-        total_loss = 100 * style_loss + 5 * content_loss + 100*tv_loss
+        total_loss = 100 * style_loss + 10 * content_loss + 100*tv_loss
 
         optimizer = tf.train.AdamOptimizer(10)
         train_step = optimizer.minimize(total_loss)
