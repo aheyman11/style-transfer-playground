@@ -38,13 +38,13 @@ function save_image(img_html_object, result_message) {
 <div id="style_div">
 Style image: <br>
 
-<img src="http://localhost:8000/uploads/{{style_im}}" width="224px" height="224px"> <br>
+<img src="http://localhost:8000/uploads/{{style_im}}" style="width:224px;height:224px"> <br>
 </div>
 
 <div id="content_div">
 Content image: <br>
 
-<img src="http://localhost:8000/uploads/{{content_im}}" width="224px" height="224px"> <br>
+<img src="http://localhost:8000/uploads/{{content_im}}" style="width:224px;height:224px"> <br>
 </div>
 
 Generated image: <br>
@@ -69,7 +69,9 @@ Generated image: <br>
 </span>
 <span id="save_result"> </span>
 
+<div id="gif_div">
 <br>Gif: <br>
+</div>
 <script>
 gifshot.createGIF({
 	'gifWidth': 224,
@@ -80,7 +82,7 @@ gifshot.createGIF({
         var image = obj.image,
         animatedImage = document.createElement('img');
         animatedImage.src = image;
-        document.body.appendChild(animatedImage);
+        document.getElementById("gif_div").appendChild(animatedImage);
     }
 });
 </script>

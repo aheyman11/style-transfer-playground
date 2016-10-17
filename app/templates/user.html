@@ -55,14 +55,8 @@
     }
   </script>
 
-  <table>
-      <tr valign="top">
-          <td>
-              <h1>User: {{user.nickname}}</h1>
-          </td>
-      </tr>
-  </table>
-  <hr>
+  <h1>User: {{user.nickname}}</h1>
+
   <div id="images">
   </div>
   {% for image in images %}
@@ -78,6 +72,7 @@
     description_p.className = "description"
     var img = document.createElement("img");
     img.src = 'http://localhost:8000/' + dir + "/{{ image['id'] }}" + '.jpg';
+    img.className = "img-rounded"
     div.appendChild(img)
     div.appendChild(description_p)
     document.getElementById("images").appendChild(div);

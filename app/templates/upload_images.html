@@ -2,39 +2,41 @@
 
 {% block content %}
   <h1>Create an image</h1>
-  <form action="" method="post" name="upload_images" enctype="multipart/form-data">
+  {% include 'flash.html' %}
+  <div class="well">
+    <form class="form-horizontal" action="" method="post" name="upload_images" enctype="multipart/form-data">
       {{ form.hidden_tag() }}
-      <table>
-        <tr>
-          <td>Upload your style image (will be compressed to 224 x 224):</td>
-          <td>
-            {{ form.style_im }}
+      <div class="control-group{% if form.errors.post %} error{% endif %}">
+        <label class="control-label" for="style_im">Upload your style image (will be compressed to 224 x 224):</label>
+        <div class="controls">
+            {{ form.style_im(class = "span4") }}
             {% for error in form.style_im.errors %}
-            <br><span style="color: red;">[{{ error }}]</span>
+            <span class="help-inline">[{{ error }}]</span><br>
             {% endfor %}
-          </td>
-        </tr>
-        <tr>
-          <td>Upload your content image (will be compressed to 224 x 224):</td>
-          <td>
-            {{ form.content_im }}
+        </div>
+      </div>
+        <div class="control-group{% if form.errors.post %} error{% endif %}">
+          <label class="control-label" for="content_im">Upload your content image (will be compressed to 224 x 224):</label>
+          <div class="controls">
+            {{ form.content_im(class="span4") }}
             {% for error in form.content_im.errors %}
-            <br><span style="color: red;">[{{ error }}]</span>
+            <span class="help-inline">[{{ error }}]</span><br>
             {% endfor %}
-          </td>
-        </tr>
-        <tr>
-          <td>Number of iterations:</td>
-          <td>
-            {{ form.num_iter }}
+          </div>
+        </div>
+        <div class="control-group{% if form.errors.post %} error{% endif %}">
+          <label class="control-label" for="num_iter">Number of iterations:</label>
+          <div class="controls">
+            {{ form.num_iter(class="span4") }}
             {% for error in form.num_iter.errors %}
-            <br><span style="color: red;">[{{ error }}]</span>
+            <span class="help-inline">[{{ error }}]</span><br>
             {% endfor %}
-          </td>
-        </tr>
-        <tr> 
-          <td><input type="submit" value="Create image"></td>
-        </tr>
-      </table>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="controls">
+            <input class="btn btn-primary" type="submit" value="Create image">
+          </div>
+        </div>
   </form>
 {% endblock %}
