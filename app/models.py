@@ -32,6 +32,7 @@ class Image(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	timestamp = db.Column(db.DateTime)
 	style_im = db.Column(db.String(64))
+	content_im = db.Column(db.String(64))
 	num_iters = db.Column(db.Integer)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 

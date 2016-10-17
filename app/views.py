@@ -115,6 +115,7 @@ def save_image():
 		timestamp=datetime.utcnow(), 
 		author=g.user, 
 		style_im=session['style_im'],
+		content_im=session['content_im'],
 		num_iters=session['num_iters']
 	)
 	db.session.add(image)
@@ -122,6 +123,7 @@ def save_image():
 	# copy file into directory of saved generated images
 	copyfile(tmp_image, os.path.join(app.config['OUT_DIR'], str(image.id) + '.jpg'))
 	session.pop('style_im', None)
+	session.pop('content_im', None)
 	session.pop('num_iters', None)
 	return(jsonify({'success': True}))
 
@@ -133,7 +135,12 @@ def user(social_id):
 		flash('User %s not found.' % social_id)
 		return redirect(url_for('index'))
 	image_files = map(lambda x: 
-		{'id': str(x.id), 'num_iters': x.num_iters, 'style_im': x.style_im}, 
+		{
+			'id': str(x.id), 
+			'num_iters': x.num_iters, 
+			'style_im': x.style_im, 
+			'content_im': x.content_im
+		}, 
 		user.images
 	)
 	return render_template('user.html',

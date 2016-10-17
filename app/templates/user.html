@@ -74,7 +74,7 @@
     // we give div same id as image name for convenience in delete_image method
     div.id = "{{image['id']}}"
     var description_p = document.createElement("p");
-    description_p.innerText = "Style image: {{image['style_im']}}\nIterations: {{image['num_iters']}}";
+    description_p.innerText = "Style image: {{image['style_im']}}\nContent image: {{image['content_im']}}\nIterations: {{image['num_iters']}}";
     description_p.className = "description"
     var img = document.createElement("img");
     img.src = 'http://localhost:8000/' + dir + "/{{ image['id'] }}" + '.jpg';
