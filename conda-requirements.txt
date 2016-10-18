@@ -5,7 +5,6 @@ scipy=0.18.1=np111py35_0
 click=6.6=py35_0
 mock=2.0.0=py35_0
 pbr=1.10.0=py35_0
-protobuf=3.0.0b2=py35_0
 six=1.10.0=py35_0
 flask=0.11.1=py35_0
 itsdangerous=0.24=py35_0
