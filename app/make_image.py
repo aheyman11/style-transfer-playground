@@ -13,6 +13,7 @@ import scipy.io
 
 from app import app
 from flask import current_app
+import urllib.request
 
 # We will use the pretrained 19-layer VGG model
 def make_image(num_iterations, style_image_file, content_image_file=None):
@@ -23,9 +24,11 @@ def make_image(num_iterations, style_image_file, content_image_file=None):
     for im_file in os.listdir(TMP_DIR):
         os.remove(os.path.join(TMP_DIR, im_file))
 
-    VGG_MODEL = 'imagenet-vgg-verydeep-19.mat'
+    VGG_MODEL_ADDRESS = 'https://s3.amazonaws.com/style-transfer-playground-assets/imagenet-vgg-verydeep-19.mat'
+    VGG_MODEL_FILE = './tmp/imagenet-vgg-verydeep-19.mat'
+    urllib.request.urlretrieve(VGG_MODEL_ADDRESS, VGG_MODEL_FILE)
 
-    vgg = scipy.io.loadmat(VGG_MODEL)
+    vgg = scipy.io.loadmat(VGG_MODEL_FILE)
     vgg_layers = vgg['layers']
     print('VGG model loaded')
 
