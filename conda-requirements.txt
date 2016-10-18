@@ -1,7 +1,6 @@
 # This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: osx-64
-scipy=0.18.1=np111py35_0
 click=6.6=py35_0
 mock=2.0.0=py35_0
 pbr=1.10.0=py35_0
