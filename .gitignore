@@ -1,0 +1,5 @@
+.DS_STORE
+*.db
+__pycache__/
+tests/coverage
+tests/style_transfer.log
