@@ -15,21 +15,38 @@
 
 <script>
 var tmp_images = []
-disabled = false
+save_disabled = false
+save_gif_disabled = false
+
 function save_image(img_html_object, result_message) {
-	if (disabled == false) {
+	if (save_disabled == false) {
 	    $.post('/save_image', {
 	        out_image: $(img_html_object).attr('src')
 	    }).done(function() {
-	    	disabled = true
+	    	save_disabled = true
 	        $(result_message).text('Image saved!')
-	        console.log()
 	    }).fail(function() {
 	        $(result_message).text('Error: your image could not be saved');
 	    });
 	}
 	else {
 		$(result_message).text('This image was already saved.')
+	}
+}
+
+function save_gif(gif_object, result_message) {
+	if (save_gif_disabled == false) {
+		$.post('/save_gif', {
+			gif_binary: $(gif_object).attr('src')
+		}).done(function() {
+			save_gif_disabled = true;
+			$(result_message).text('Gif saved!');
+		}).fail(function() {
+			$(result_message).text('Error: your gif could not be saved');
+		});
+	}
+	else {
+		$(result_message).text('This gif was already saved.')
 	}
 }
 </script>
@@ -71,8 +88,9 @@ Content image: <br>
 </span>
 <span id="save_result"> </span>
 
-<div id="gif_div">
 <br>Gif: <br>
+<div id="gif_div" style="width:224px;height:224px">
+	<img id="gif_image">
 </div>
 <script>
 gifshot.createGIF({
@@ -81,13 +99,17 @@ gifshot.createGIF({
     'images': tmp_images
 },function(obj) {
     if(!obj.error) {
-        var image = obj.image,
-        animatedImage = document.createElement('img');
-        animatedImage.src = image;
-        document.getElementById("gif_div").appendChild(animatedImage);
+        var image = obj.image;
+        document.getElementById("gif_image").src = image;
     }
 });
 </script>
+
+<span id="save_gif">
+    <a href="javascript:save_gif('#gif_image', '#gif_result');">Make gif public</a> <br>
+</span>
+<span id="gif_result"> </span>
+<br>
 {% else %}
 No image uploaded. <br>
 {% endif %}

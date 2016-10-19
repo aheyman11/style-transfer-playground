@@ -25,3 +25,4 @@ OAUTH_CREDENTIALS = {
 INTERMEDIATE_IM_DIR = os.path.join(basedir, 'tmp')
 UPLOAD_DIR = os.path.join(basedir, 'uploads')
 OUT_DIR = os.path.join(basedir, 'out')
+GIF_DIR = os.path.join(basedir, 'gifs')

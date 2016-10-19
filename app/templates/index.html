@@ -1,11 +1,39 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>This is the style transfer web app!</h1>
+	<style>
+	    .floated_gif
+	    {
+	        float: left;
+	        padding: 5px;
+	        position: relative;
+	    }
+    </style>
+
+    <h1>Welcome to the Style Transfer Playground!</h1>
     {% if user %}
     <p>Welcome, {{user.nickname}}! </p>
     {% else %}
-    <p>You are not currently logged in. Please log in to continue.</p>
+    <p>You are not currently logged in. Please log in to create an image.</p>
     <p><a href="{{ url_for('oauth_authorize', provider='facebook') }}">Login with Facebook</a></p>
     <p><a href="{{ url_for('oauth_authorize', provider='github') }}">Login with Github</a></p>
     {% endif %}
+
+    <h4>Recent gifs created by our users</h4>
+    <div id="gifs"> </div>
+    {% for gif in gifs %}
+      <script>
+	    // get last part of directory where images are being served
+	    var dir = '{{config['GIF_DIR']}}'.match(/([^\/]*)\/*$/)[1];
+	    var div = document.createElement("div");
+	    div.className = "floated_gif"
+	    var description_p = document.createElement("p");
+	    description_p.innerText = "{{ gif.author.nickname }}";
+	    description_p.className = "description"
+	    var gif = document.createElement("img");
+	    gif.src = 'http://localhost:8000/' + dir + "/{{ gif.id }}" + '.gif';
+	    div.appendChild(gif)
+	    div.appendChild(description_p)
+	    document.getElementById("gifs").appendChild(div);
+	  </script>
+    {% endfor %}
 {% endblock %}

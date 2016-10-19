@@ -4,10 +4,11 @@ from flask import render_template, flash, redirect, url_for, \
 from werkzeug.utils import secure_filename
 from app import app, db, lm
 from .forms import CreateImageForm
-from .models import User, Image
+from .models import User, Image, Gif
 import os
 from shutil import copyfile
 from datetime import datetime
+import base64
 
 from .make_image import make_image
 
@@ -25,11 +26,12 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
+	gifs = Gif.query.all()[0:10]
 	if g.user.is_authenticated:
 		user = g.user
 	else:
 		user = None
-	return render_template('index.html', user=user)
+	return render_template('index.html', user=user, gifs=gifs)
 
 @login_required
 @app.route('/upload_images', methods=('GET', 'POST'))
@@ -129,6 +131,22 @@ def save_image():
 	session.pop('style_im', None)
 	session.pop('content_im', None)
 	session.pop('num_iters', None)
+	return(jsonify({'success': True}))
+
+@login_required
+@app.route('/save_gif', methods=['POST'])
+def save_gif():
+	# get binary image as a string from the frontend
+	binary = request.form['gif_binary'].split('base64,')[1]
+	gif = Gif(
+		author=g.user
+	)
+	# add entry to database
+	db.session.add(gif)
+	db.session.commit()
+	# write gif file to filesystem
+	with open(os.path.join(app.config['GIF_DIR'], str(gif.id) + '.gif'), "wb") as f:
+		f.write(base64.b64decode(binary))
 	return(jsonify({'success': True}))
 
 @login_required
