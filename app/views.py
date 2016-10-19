@@ -15,6 +15,8 @@ from .make_image import make_image
 from oauth import OAuthSignIn
 from flask.ext.login import login_user, current_user, login_required, logout_user
 
+MAX_GIFS = 25
+
 @lm.user_loader
 def load_user(id):
 	return User.query.get(int(id))
@@ -26,7 +28,7 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
-	gifs = Gif.query.all()[0:10]
+	gifs = Gif.query.all()
 	if g.user.is_authenticated:
 		user = g.user
 	else:
@@ -147,6 +149,13 @@ def save_gif():
 	# write gif file to filesystem
 	with open(os.path.join(app.config['GIF_DIR'], str(gif.id) + '.gif'), "wb") as f:
 		f.write(base64.b64decode(binary))
+
+	# delete oldest gif if more than MAX_GIFS total
+	if len(Gif.query.all()) > MAX_GIFS:
+		oldest_gif = Gif.query.first()
+		os.remove(os.path.join(app.config['GIF_DIR'], str(oldest_gif.id) + '.gif'))
+		db.session.delete(oldest_gif)
+		db.session.commit()
 	return(jsonify({'success': True}))
 
 @login_required
