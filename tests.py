@@ -26,6 +26,11 @@ class TestCase(unittest.TestCase):
         app.config['INTERMEDIATE_IM_DIR'] = os.path.join(basedir, 'tests', 'tmp')
         app.config['UPLOAD_DIR'] = os.path.join(basedir, 'tests', 'uploads')
         app.config['OUT_DIR'] = os.path.join(basedir, 'tests', 'out')
+        dirs = [app.config['INTERMEDIATE_IM_DIR'], app.config['UPLOAD_DIR'], app.config['OUT_DIR']]
+        # empty all directories
+        for directory in dirs:
+            for f in os.listdir(directory):
+                os.remove(os.path.join(directory, f))
         self.app = app.test_client()
         db.create_all()
 
@@ -41,14 +46,14 @@ class TestCase(unittest.TestCase):
         assert u.is_active is True
         assert u.is_anonymous is False
 
-    # check that make_image function cleans up all but last temporary image
-    def test_make_image_cleanup(self):
-        image_generator = make_image('tests/starry_night1.jpg', 5)
+    # check that make_image function generates all temporary images
+    def test_make_image(self):
+        iters = 5
+        image_generator = make_image(iters, 'tests/static/starry_night1.jpg')
         temp_images = []
         for image in image_generator:
             temp_images.append(image)
-        for image in temp_images[0:-1]:
-            assert not os.path.exists(os.path.join(app.config['INTERMEDIATE_IM_DIR'], image))
+        assert len(temp_images) == iters
 
     def test_facebook_oath_authorize(self):
         rv = self.app.get('/authorize/facebook')
@@ -76,38 +81,43 @@ class TestCase(unittest.TestCase):
         assert user.nickname == 'Andy'
 
     def test_upload_images(self):
-        # remove test file from uploads directory if present
-        if os.path.exists(os.path.join(app.config['UPLOAD_DIR'], 'tests_starry_night1.jpg')):
-            os.remove(os.path.join(app.config['UPLOAD_DIR'], 'tests_starry_night1.jpg'))
         # create FileStorage object from input file
-        test_file = None
-        with open('tests/starry_night1.jpg', 'rb') as fp:
-            test_file = FileStorage(fp)
-            # need test_request_context so we can access session
-            with app.test_request_context(path='/upload_images', method='POST', data=dict(num_iter='3', style_im=test_file)):
-                rv = app.dispatch_request() # need this to actually send request
-                # assert session contains the right data
-                assert flask.session['num_iters'] == 3
-                assert flask.session['style_im'] == 'tests_starry_night1.jpg'
-        assert os.path.exists(os.path.join(app.config['UPLOAD_DIR'], 'tests_starry_night1.jpg'))
+        style_file = None
+        content_file = None
+        with open('tests/static/starry_night1.jpg', 'rb') as sfp:
+            with open('tests/static/bladerunner.jpg', 'rb') as cfp:
+                style_file = FileStorage(sfp)
+                content_file = FileStorage(cfp)
+                # need test_request_context so we can access session
+                with app.test_request_context(path='/upload_images', method='POST', data=dict(num_iter='3', style_im=style_file, content_im=content_file)):
+                    rv = app.dispatch_request() # need this to actually send request
+                    # assert session contains the right data
+                    assert flask.session['num_iters'] == 3
+                    assert flask.session['style_im'] == 'tests_static_starry_night1.jpg'
+                    assert flask.session['content_im'] == 'tests_static_bladerunner.jpg'
+        assert os.path.exists(os.path.join(app.config['UPLOAD_DIR'], 'tests_static_starry_night1.jpg'))
+        assert os.path.exists(os.path.join(app.config['UPLOAD_DIR'], 'tests_static_bladerunner.jpg'))
 
     def test_create_image(self):
         with app.test_request_context(path='/create_image'):
             flask.session['num_iters'] = 3
-            flask.session['style_im'] = 'tests_starry_night1.jpg'
+            flask.session['style_im'] = 'tests_static_starry_night1.jpg'
+            flask.session['content_im'] = ''
             rv = app.dispatch_request()
         assert rv.status_code == 200
 
     def test_save_image(self):
         # copy final generated image into right directory
-        if not os.path.exists(os.path.join(app.config['INTERMEDIATE_IM_DIR'], '4.png')):
-            copyfile('tests/4.png', os.path.join(app.config['INTERMEDIATE_IM_DIR'], '4.png'))
+        copyfile('tests/static/4.png', os.path.join(app.config['INTERMEDIATE_IM_DIR'], '4.png'))
         # create fake user
         user = User(social_id="facebook$123", nickname="Test User")
         db.session.add(user)
         db.session.commit()
         with app.test_request_context(path='/save_image', method='POST', data={'out_image': '4.png'}):
             flask.g.user = user
+            flask.session['num_iters'] = 3
+            flask.session['style_im'] = 'tests_static_starry_night1.jpg'
+            flask.session['content_im'] = ''
             app.dispatch_request()
         # assert that image entry has been added to database
         user = User.query.filter_by(social_id="facebook$123").first()
@@ -120,9 +130,8 @@ class TestCase(unittest.TestCase):
     # create two users, user1 and user2
     # create one image whose author is user1
     def delete_image_setup(self):
-        # place image in out directory if it's not already there
-        if not os.path.exists(os.path.join(app.config['OUT_DIR'], '1.jpg')):
-            copyfile('tests/4.png', os.path.join(app.config['OUT_DIR'], '1.jpg'))
+        # place image in out directory
+        copyfile('tests/static/4.png', os.path.join(app.config['OUT_DIR'], '1.jpg'))
         user1 = User(social_id="facebook$1", nickname="user1")
         user2 = User(social_id="facebook$2", nickname="user2")
         db.session.add(user1)
