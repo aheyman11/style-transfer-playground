@@ -54,10 +54,6 @@ Post-image creation:
 ![Post-image creation]
 (https://github.com/aheyman11/style-transfer-playground/blob/master/screenshots/post-computation.png)
 
-Gif of output:
-![]
-(https://github.com/aheyman11/style-transfer-playground/blob/master/screenshots/sample.gif)
-
 User profile:
 ![User profile]
 (https://github.com/aheyman11/style-transfer-playground/blob/master/screenshots/profile.png)
