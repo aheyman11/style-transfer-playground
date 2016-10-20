@@ -28,7 +28,7 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
-	gifs = Gif.query.all()
+	gifs = Gif.query.order_by(Gif.id.desc()).all()
 	if g.user.is_authenticated:
 		user = g.user
 	else:
