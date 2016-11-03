@@ -4,7 +4,7 @@ See the inner workings of the style transfer algorithm presented in [A Neural Al
 
 After logging in through one of our supported OAuth providers, you and your users can create custom images blending your own style and content images. After uploading your images and clicking "Create image" on the "Create an image" tab, the server kicks off a Tensorflow implementation of the style transfer algorithm. The resulting page that the user sees is streamed using Flask's content streaming so that the generated image gets updated on each iteration in real time.
 
-Upon completion of the computation, you can see a gif of the entire process of your image's creation (made with the [Gifshot](https://github.com/yahoo/gifshot) Javascript library). If desired, save your generated images to your user profile for later viewing and to share with friends, which creates a database entry for your image and saves it to the local filesystem. We use a sqllite database with SQLAlchemy.
+Upon completion of the computation, you can see a gif of the entire process of your image's creation (made with the [Gifshot](https://github.com/yahoo/gifshot) Javascript library). If desired, save your generated images to your user profile for later viewing and to share with friends, which creates a database entry for your image and saves it to the local filesystem. We use a SQLite database with SQLAlchemy.
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@ pip install -r requirements.txt
 
 You will also need to download the file `imagenet-vgg-verydeep-19.mat` found [here](http://www.vlfeat.org/matconvnet/pretrained/) into the top level of the project directory. This file contains the pretrained 19-layer VGG convolutional neural network, which is used by the style transfer algorithm.
 
-Finally, before running the app for the first time, you must create the sqllite database by running the `db_create.py` script.
+Finally, before running the app for the first time, you must create the SQLite database by running the `db_create.py` script.
 
 ## Running
 To start the Flask server on the default port 5000, run the script `run.py` from your Python console. You will also need to run a second simple server on port 8000 from the top level of the project directory, which is responsible for serving the images and gifs while the large Tensorflow computation is running. Any simple server with CORS enabled will work: I suggest Node's `http-server`:
@@ -27,6 +27,12 @@ http-server -p 8000 --cors
 ```
 
 Then simply visit `http://localhost:5000/` in your web browser.
+
+## Architecture
+![Architecture]
+(https://github.com/aheyman11/style-transfer-playground/blob/master/screenshots/architecture.jpg)
+
+The above diagram shows the architecture of the application. A user connects to the main app (the orange rectangular block). After logging in with an external OAuth provider, user sessions and metadata for created images (file names, iterations, etc) are stored in a SQLite database. Uploaded images and generated images are stored locally on the file system and served back to the user via the separate image server.
 
 ## Migrations and testing
 If you choose to modify the app source code, you may wish to know how we do migrations and unit testing.
