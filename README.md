@@ -29,8 +29,7 @@ http-server -p 8000 --cors
 Then simply visit `http://localhost:5000/` in your web browser.
 
 ## Architecture
-![Architecture]
-(https://github.com/aheyman11/style-transfer-playground/blob/master/screenshots/architecture.jpg)
+<img src="https://github.com/aheyman11/style-transfer-playground/raw/master/screenshots/architecture.jpg" alt="Architecture" style="max-width:70%;">
 
 The above diagram shows the architecture of the application. A user connects to the main app (the orange rectangular block). After logging in with an external OAuth provider, user sessions and metadata for created images (file names, iterations, etc) are stored in a SQLite database. Uploaded images and generated images are stored locally on the file system and served back to the user via the separate image server.
 
